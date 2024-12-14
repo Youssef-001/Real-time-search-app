@@ -1,0 +1,18 @@
+example on loading a file.
+
+
+private void load_button (object sender, EventArgs e)
+{
+openFileDialog1.Filter = "Text Files (*.txt;*.csv;*.log)|*.txt;*.csv;*.log|All Files (*.*)|*.*";
+if(openFileDialog1.ShowDialog() == DialogResult.OK) // if he choosed 
+{
+    richTextBox1.LoadFile(openFileDialog1.FileName);
+    // then disable it so he can't edit the text.
+    richTextBox1.ReadOnly = true;
+
+}
+
+}
+
+
+// textChanged event on inputs fires on writing to input text
