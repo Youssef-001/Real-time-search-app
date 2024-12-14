@@ -1,0 +1,54 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace RealTimeSearchApp
+{
+    public partial class MainForm : Form
+    {
+        public MainForm()
+        {
+            InitializeComponent();
+        }
+
+        private void btnLoadFile_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string content = File.ReadAllText(openFileDialog.FileName);
+                    richTextBoxContent.Text = content;
+                }
+            }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            string searchText = txtSearch.Text;
+            HighlightMatches(searchText);
+        }
+
+        private void HighlightMatches(string searchText)
+        {
+            // Reset formatting
+            richTextBoxContent.SelectAll();
+            richTextBoxContent.SelectionBackColor = richTextBoxContent.BackColor;
+
+            if (string.IsNullOrWhiteSpace(searchText))
+                return;
+
+            string content = richTextBoxContent.Text;
+            Regex regex = new Regex($@"\b{Regex.Escape(searchText)}\w*", RegexOptions.IgnoreCase);
+
+            foreach (Match match in regex.Matches(content))
+            {
+                richTextBoxContent.Select(match.Index, match.Length);
+                richTextBoxContent.SelectionBackColor = System.Drawing.Color.Yellow;
+            }
+        }
+    }
+}

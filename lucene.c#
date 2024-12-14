@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Documents;
+using Lucene.Net.Index;
+using Lucene.Net.Store;
+using Lucene.Net.QueryParsers;
+using Lucene.Net.Util;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Sample list of words to index
+        List<string> wordsList = new List<string>
+        {
+            "Lucene in Action",
+            "Lucene is powerful",
+            "Search engines are great",
+            "Search using Lucene",
+            "Powerful text search library"
+        };
+
+        // The word to search for
+        string searchWord = "Lucene";
+
+        // Call the function to get search results
+        var results = SearchIndex(wordsList, searchWord);
+
+        // Output the results
+        Console.WriteLine($"Search results for '{searchWord}':");
+        foreach (var result in results)
+        {
+            Console.WriteLine(result);
+        }
+    }
+
+    public static List<string> SearchIndex(List<string> wordsList, string searchWord)
+    {
+        // List to store the result of the search
+        List<string> searchResults = new List<string>();
+
+        // Create an index in memory
+        var directory = new RAMDirectory();
+
+        // Create an analyzer (StandardAnalyzer is good for text search)
+        var analyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48);
+
+        // Create an IndexWriter to write data to the index
+        var indexConfig = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
+        var writer = new IndexWriter(directory, indexConfig);
+
+        // Add each word in the list as a document to the index
+        foreach (var word in wordsList)
+        {
+            var doc = new Document
+            {
+                // Add a text field to the document
+                new TextField("content", word, Field.Store.YES)
+            };
+            writer.AddDocument(doc);
+        }
+
+        // Commit the changes to the index and close the writer
+        writer.Commit();
+        writer.Dispose();
+
+        // Now, let's search the index
+        var reader = DirectoryReader.Open(directory);
+        var searcher = new IndexSearcher(reader);
+
+        // Create a query for the search word
+        var queryParser = new QueryParser(LuceneVersion.LUCENE_48, "content", analyzer);
+        var query = queryParser.Parse(searchWord);
+
+        // Execute the query
+        var hits = searcher.Search(query, 10).ScoreDocs;
+
+        // Collect the results
+        foreach (var hit in hits)
+        {
+            var docId = hit.Doc;
+            var document = searcher.Doc(docId);
+            searchResults.Add(document.Get("content"));
+        }
+
+        // Close the reader and directory
+        reader.Dispose();
+        directory.Dispose();
+
+        return searchResults;
+    }
+}
