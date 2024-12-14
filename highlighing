@@ -1,0 +1,10 @@
+// example
+
+int startIndex = 5;  
+int length = 10;    
+
+// Select the range of text
+textBox.Select(startIndex, length);
+
+textBox.SelectionBackColor = Color.Yellow;  
+textBox.SelectionForeColor = Color.Black;  
