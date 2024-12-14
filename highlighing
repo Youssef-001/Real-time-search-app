@@ -1,10 +1,12 @@
 // example
 
-int startIndex = 5;  
-int length = 10;    
+// loop on every index in your result array and highlight with highlightText method
 
-// Select the range of text
+private void highlightText(int startIndex, int length)
+{
 textBox.Select(startIndex, length);
 
 textBox.SelectionBackColor = Color.Yellow;  
 textBox.SelectionForeColor = Color.Black;  
+
+}
